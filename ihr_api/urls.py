@@ -4,6 +4,7 @@ from ihr_api import views
 from rest_framework_simplejwt import views as jwt_views
 
 router = routers.DefaultRouter()
+router.register(r'product', views.ProductViewSet)
 
 urlpatterns = [
     path('token/', views.APITokenObtainPairView.as_view(), name='token_obtain_pair'),
