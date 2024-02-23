@@ -120,3 +120,64 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Payment(models.Model):
+    METHOD_CARD = 0
+    METHOD_CRYPTO = 1
+
+    PAYMENT_METHODS = (
+        (METHOD_CARD, 'Card'),
+        (METHOD_CRYPTO, 'Crypto'),
+    )
+
+    STATUS_PENDING = 0
+    STATUS_CONFIRMED = 1
+
+    PAYMENT_STATUS = (
+        (STATUS_PENDING, 'Pending'),
+        (STATUS_CONFIRMED, 'Confirmed'),
+    )
+
+    reference = models.CharField(max_length=10, unique=True, null=False, blank=False)
+    amount = models.FloatField(default=0, null=False)
+    payment_method = models.PositiveSmallIntegerField(default=METHOD_CARD, null=False, blank=False, choices=PAYMENT_METHODS)
+    status = models.PositiveSmallIntegerField(default=STATUS_PENDING, null=False, blank=False, choices=PAYMENT_STATUS)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.reference
+
+
+class Sale(models.Model):
+    SALE_PENDING_PAYMENT = 0
+    SALE_CONFIRMED = 1
+    SALE_IN_DELIVERY = 2
+    SALE_DELIVERED = 3
+    SALE_CANCELED = 4
+
+    SALE_STATUS = (
+        (SALE_PENDING_PAYMENT, 'Pending Payment'),
+        (SALE_CONFIRMED, 'Confirmed'),
+        (SALE_IN_DELIVERY, 'In Delivery'),
+        (SALE_DELIVERED, 'Delivered'),
+        (SALE_CANCELED, 'Canceled'),
+    )
+
+    reference = models.CharField(max_length=10, unique=True, null=False, blank=False)
+    date = models.DateTimeField(auto_now_add=True)
+    sub_total = models.FloatField(default=0, null=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
+    address = models.TextField(default="")
+    indications = models.TextField(default="")
+    status = models.PositiveSmallIntegerField(default=SALE_PENDING_PAYMENT, null=False, blank=False, choices=SALE_STATUS)
+    payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
+
+
+class SaleItem(models.Model):
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.IntegerField(default=1)
+    price = models.DecimalField(max_digits=10, decimal_places=2, null=False, blank=False)
+    sub_total = models.DecimalField(max_digits=10, decimal_places=2, null=False, blank=False)
