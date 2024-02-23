@@ -11,7 +11,7 @@ DEBUG = (os.getenv('DEBUG', 'False') == 'True')
 if DEBUG:
     ALLOWED_HOSTS = ['*']
 else:
-    ALLOWED_HOSTS = ['backend.ihr.epask.com']
+    ALLOWED_HOSTS = ['thr-backend.mcoloniab.com']
 
 
 # Application definition
@@ -83,10 +83,6 @@ DATABASES = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/4.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -133,19 +129,19 @@ if DEBUG:
     CORS_ORIGIN_WHITELIST = [
         'http://localhost:3000',
         'http://example.com',
-        "https://frontend.ihr.epask.com"
+        "https://thr.mcoloniab.com"
     ]
 
     CORS_ALLOWED_ORIGINS = [
         'http://localhost:3000',
         'http://example.com',
-        "https://frontend.ihr.epask.com"
+        "https://thr.mcoloniab.com"
     ]
     CORS_ALLOW_CREDENTIALS = True
     CORS_PREFLIGHT_MAX_AGE = 86400
 else:
     CORS_ALLOW_ALL_ORIGINS = False
     CORS_ALLOWED_ORIGINS = [
-        "https://backend.ihr.epask.com",
-        "https://frontend.ihr.epask.com"
+        "https://thr-backend.mcoloniabcom",
+        "https://thr.mcoloniab.com"
     ]

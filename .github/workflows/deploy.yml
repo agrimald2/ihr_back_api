@@ -13,8 +13,8 @@ jobs:
 
       - name: Setting environment variables..
         run: |
-          echo "AWS_DEFAULT_REGION=eu-west-2" >> $GITHUB_ENV
-          echo "AWS_SG_ID=sg-" >> $GITHUB_ENV
+          echo "AWS_DEFAULT_REGION=us-east-2" >> $GITHUB_ENV
+          echo "AWS_SG_ID=sg-014e29b1e58bfd88b" >> $GITHUB_ENV
 
       - name: Add Github Actions IP to Security group
         run: aws ec2 authorize-security-group-ingress --group-id ${{ env.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
@@ -32,8 +32,8 @@ jobs:
         uses: dokku/github-action@v1.0.1
         with:
           git_push_flags: '--force'
-          git_remote_url: 'ssh://dokku@backend.ihr.epask.com:22/ihr-backend'
-          ssh_private_key: ${{ secrets.MYIND_AWS_WEBSERVER }}
+          git_remote_url: 'ssh://dokku@thr.mcoloniab.com:22/thr-backend'
+          ssh_private_key: ${{ secrets.DOKKU_SSH_KEY }}
 
       - name: Remove Github Action IP from sec group
         if: always()
