@@ -1,6 +1,7 @@
 from django.contrib import admin
 from ihr_api import models
 
+admin.site.site_header = 'THR Admin'
 
 admin.site.register(models.Product)
 admin.site.register(models.Category)

@@ -14,10 +14,22 @@ class Currency(models.Model):
         return self.name
 
 
-class Store(models.Model):
+class Country(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
+    code = models.CharField(max_length=5, null=False, blank=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+
+class Store(models.Model):
+    name = models.CharField(max_length=150, null=False, blank=False)
+    commission = models.FloatField(null=False, blank=False, default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    country = models.ManyToManyField(Country, blank=True)
 
     def __str__(self):
         return self.name
@@ -93,7 +105,7 @@ class Product(models.Model):
     name_ch = models.CharField(max_length=150, null=True, blank=True)
     code = models.CharField(max_length=150, null=False, blank=False)
     brand = models.CharField(max_length=150, null=True, blank=True)
-    gender = models.IntegerField(null=False, choices=GENDERS, default=GENDER_ANY, blank=False)
+    gender = models.IntegerField(null=True, choices=GENDERS, default=GENDER_ANY, blank=True)
     composition = models.CharField(max_length=150, null=True, blank=True)
     manufacturer = models.CharField(max_length=150, null=True, blank=True, default="China")
     description = models.TextField(null=True, blank=True)
