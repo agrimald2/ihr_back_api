@@ -5,6 +5,7 @@ from rest_framework_simplejwt import views as jwt_views
 
 router = routers.DefaultRouter()
 router.register(r'product', views.ProductViewSet)
+router.register(r'category', views.CategoryViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

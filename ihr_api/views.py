@@ -24,3 +24,10 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_class = filters.ProductFilter
     permission_classes = []
     authentication_classes = []
+
+
+class CategoryViewSet(viewsets.ModelViewSet):
+    queryset = models.Category.objects.all()
+    serializer_class = client_serializers.ClientCategorySerializer
+    permission_classes = []
+    authentication_classes = []
