@@ -52,7 +52,6 @@ class User(AbstractUser):
 class Category(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -64,7 +63,6 @@ class Subcategory(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
