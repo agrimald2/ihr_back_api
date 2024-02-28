@@ -1,10 +1,12 @@
 from ihr_api import models
-import string, random
+from ihr_api.services import openpay_service
+import string
+import random
 
 
-def make_sale(cart, address, payment_method: int, indications, user: models.User):
+def make_sale(cart, address, payment_method: int, indications, user: models.User) -> bool:
     payment_reference = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
-    payments = models.Payment.objects.create(
+    payment = models.Payment.objects.create(
         reference=payment_reference,
         amount=cart.total,
         payment_method=payment_method,
@@ -17,16 +19,19 @@ def make_sale(cart, address, payment_method: int, indications, user: models.User
         user=user,
         address=address,
         indications=indications,
-        payment=payments
+        payment=payment
     )
 
+    payment_success = False
 
-def payment_successful(payment_reference) -> bool:
-    payment = models.Payment.objects.get(reference=payment_reference)
-    sale = payment.sale_set.first()
-    if sale.status == models.Sale.SALE_PENDING_PAYMENT and sale.payment.status == models.Payment.STATUS_PENDING:
-        sale.payment.status = models.Payment.STATUS_CONFIRMED
-        sale.payment.save()
+    if payment_method == models.Payment.PAYMENT_METHODS.METHOD_CARD:
+        payment_success = openpay_service.create_payment(cart.total, 'PEN', openpay_service.generate_token(), sale_reference)
+    elif payment_method == models.Payment.PAYMENT_METHODS.METHOD_CRYPTO:
+        payment_success = False
+
+    if payment_success and sale.status == models.Sale.SALE_PENDING_PAYMENT and sale.payment.status == models.Payment.STATUS_PENDING:
+        payment.status = models.Payment.STATUS_CONFIRMED
+        payment.save()
 
         sale.status = models.Sale.SALE_CONFIRMED
         sale.save()
