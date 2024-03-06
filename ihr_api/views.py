@@ -19,7 +19,7 @@ class CreateUserView(CreateAPIView):
 
 class ProductViewSet(viewsets.ModelViewSet):
     queryset = models.Product.objects.all()
-    serializer_class = client_serializers.ClientProductSerializer
+    serializer_class = admin_serializers.AdminProductSerializer
     filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
     filterset_class = filters.ProductFilter
     permission_classes = []
