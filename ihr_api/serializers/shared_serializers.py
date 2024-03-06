@@ -46,3 +46,29 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+
+class CategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Category
+        fields = '__all__'
+
+
+class SubcategorySerializer(serializers.ModelSerializer):
+    category = CategorySerializer(many=False, read_only=True)
+
+    class Meta:
+        model = models.Subcategory
+        fields = '__all__'
+
+
+class CountrySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Country
+        fields = '__all__'
+
+
+class CurrencySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Currency
+        fields = '__all__'

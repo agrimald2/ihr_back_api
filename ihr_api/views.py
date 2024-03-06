@@ -28,6 +28,34 @@ class ProductViewSet(viewsets.ModelViewSet):
 
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = models.Category.objects.all()
-    serializer_class = client_serializers.ClientCategorySerializer
+    serializer_class = shared_serializers.CategorySerializer
+    permission_classes = []
+    authentication_classes = []
+
+
+class SubcategoryViewSet(viewsets.ModelViewSet):
+    queryset = models.Subcategory.objects.all()
+    serializer_class = shared_serializers.SubcategorySerializer
+    permission_classes = []
+    authentication_classes = []
+
+
+class CountryViewSet(viewsets.ModelViewSet):
+    queryset = models.Country.objects.all()
+    serializer_class = shared_serializers.CountrySerializer
+    permission_classes = []
+    authentication_classes = []
+
+
+class CurrencyViewSet(viewsets.ModelViewSet):
+    queryset = models.Currency.objects.all()
+    serializer_class = shared_serializers.CurrencySerializer
+    permission_classes = []
+    authentication_classes = []
+
+
+class StoreViewSet(viewsets.ModelViewSet):
+    queryset = models.Store.objects.all()
+    serializer_class = admin_serializers.AdminStoreSerializer
     permission_classes = []
     authentication_classes = []
