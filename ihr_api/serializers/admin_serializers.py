@@ -25,7 +25,13 @@ class AdminStoreSerializer(serializers.ModelSerializer):
 class AdminProductSerializer(serializers.ModelSerializer):
     subcategory = AdminSubcategorySerializer(many=False, read_only=True)
     store = AdminStoreSerializer(many=False, read_only=True)
+    subcategory_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = models.Product
         fields = '__all__'
+
+    def save(self, **kwargs):
+        subcategory_id = self.validated_data.get('subcategory_id')
+        self.instance.subcategory_id = subcategory_id
+        super().save(**kwargs)

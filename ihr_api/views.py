@@ -59,3 +59,17 @@ class StoreViewSet(viewsets.ModelViewSet):
     serializer_class = admin_serializers.AdminStoreSerializer
     permission_classes = []
     authentication_classes = []
+
+
+class SaleViewSet(viewsets.ModelViewSet):
+    queryset = models.Sale.objects.all()
+    serializer_class = shared_serializers.SaleSerializer
+    permission_classes = []
+    authentication_classes = []
+
+
+class PaymentViewSet(viewsets.ModelViewSet):
+    queryset = models.Payment.objects.all()
+    serializer_class = shared_serializers.PaymentSerializer
+    permission_classes = []
+    authentication_classes = []

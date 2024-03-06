@@ -56,10 +56,16 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class SubcategorySerializer(serializers.ModelSerializer):
     category = CategorySerializer(many=False, read_only=True)
+    category_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = models.Subcategory
         fields = '__all__'
+
+    def save(self, **kwargs):
+        category_id = self.validated_data.get('category_id')
+        self.instance.category_id = category_id
+        super().save(**kwargs)
 
 
 class CountrySerializer(serializers.ModelSerializer):
@@ -71,4 +77,36 @@ class CountrySerializer(serializers.ModelSerializer):
 class CurrencySerializer(serializers.ModelSerializer):
     class Meta:
         model = models.Currency
+        fields = '__all__'
+
+
+class PaymentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Payment
+        fields = '__all__'
+
+
+class SizeSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Size
+        fields = '__all__'
+
+
+class ColorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.Color
+        fields = '__all__'
+
+
+class SaleItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.SaleItem
+        fields = '__all__'
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    items = SaleItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = models.Sale
         fields = '__all__'
