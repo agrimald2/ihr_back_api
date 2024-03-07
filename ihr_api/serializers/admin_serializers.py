@@ -26,12 +26,28 @@ class AdminProductSerializer(serializers.ModelSerializer):
     subcategory = AdminSubcategorySerializer(many=False, read_only=True)
     store = AdminStoreSerializer(many=False, read_only=True)
     subcategory_id = serializers.IntegerField(write_only=True)
+    store_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = models.Product
         fields = '__all__'
 
-    def save(self, **kwargs):
-        subcategory_id = self.validated_data.get('subcategory_id')
-        self.instance.subcategory_id = subcategory_id
-        super().save(**kwargs)
+    def create(self, validated_data):
+        subcategory_id = validated_data.get('subcategory_id')
+        subcategory = models.Subcategory.objects.get(pk=subcategory_id)
+
+        product = models.Product.objects.create(
+            category_id=subcategory.category_id,
+            **validated_data
+        )
+
+        return product
+
+    def update(self, instance, validated_data):
+        store_id = validated_data.get('store_id')
+        subcategory_id = validated_data.get('subcategory_id')
+        subcategory = models.Subcategory.objects.get(pk=subcategory_id)
+        instance.store_id = store_id
+        instance.subcategory_id = subcategory_id
+        instance.category_id = subcategory.category_id
+        return super().update(instance, validated_data)

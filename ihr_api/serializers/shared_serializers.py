@@ -62,10 +62,10 @@ class SubcategorySerializer(serializers.ModelSerializer):
         model = models.Subcategory
         fields = '__all__'
 
-    def save(self, **kwargs):
-        category_id = self.validated_data.get('category_id')
-        self.instance.category_id = category_id
-        super().save(**kwargs)
+    def update(self, instance, validated_data):
+        category_id = validated_data.get('category_id')
+        instance.category_id = category_id
+        return super().update(instance, validated_data)
 
 
 class CountrySerializer(serializers.ModelSerializer):
