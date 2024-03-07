@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ihr_api import models
+from ihr_api.serializers import client_serializers
 
 
 class APITokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -99,14 +100,20 @@ class ColorSerializer(serializers.ModelSerializer):
 
 
 class SaleItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
     class Meta:
         model = models.SaleItem
         fields = '__all__'
 
 
 class SaleSerializer(serializers.ModelSerializer):
-    items = SaleItemSerializer(many=True, read_only=True)
+    items = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Sale
         fields = '__all__'
+
+    def get_items(self, obj):
+        items = models.SaleItem.objects.filter(sale=obj)
+        return SaleItemSerializer(items, many=True).data
