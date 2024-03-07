@@ -67,6 +67,8 @@ class StoreViewSet(viewsets.ModelViewSet):
 class SaleViewSet(viewsets.ModelViewSet):
     queryset = models.Sale.objects.all()
     serializer_class = shared_serializers.SaleSerializer
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = filters.SaleFilter
     permission_classes = []
     authentication_classes = []
 
@@ -85,5 +87,7 @@ class SaleViewSet(viewsets.ModelViewSet):
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = models.Payment.objects.all()
     serializer_class = shared_serializers.PaymentSerializer
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = filters.PaymentFilter
     permission_classes = []
     authentication_classes = []
