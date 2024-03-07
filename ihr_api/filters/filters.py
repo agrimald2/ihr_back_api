@@ -13,3 +13,23 @@ class ProductFilter(django_filters.FilterSet):
     class Meta:
         model = models.Product
         fields = ['gender', 'name', 'size', 'color', 'subcategory', 'category']
+
+
+class SaleFilter(django_filters.FilterSet):
+    status = django_filters.ChoiceFilter(choices=models.Sale.SALE_STATUS)
+    reference = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = models.Sale
+        fields = ['status', 'reference']
+
+
+class PaymentFilter(django_filters.FilterSet):
+    payment_method = django_filters.ChoiceFilter(choices=models.Payment.PAYMENT_METHODS)
+    reference = django_filters.CharFilter(lookup_expr='icontains')
+    status = django_filters.ChoiceFilter(choices=models.Payment.PAYMENT_STATUS)
+    created_at = django_filters.DateFromToRangeFilter()
+
+    class Meta:
+        model = models.Payment
+        fields = ['payment_method', 'reference', 'status', 'created_at']
