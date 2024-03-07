@@ -28,7 +28,7 @@ class PaymentFilter(django_filters.FilterSet):
     payment_method = django_filters.ChoiceFilter(choices=models.Payment.PAYMENT_METHODS)
     reference = django_filters.CharFilter(lookup_expr='icontains')
     status = django_filters.ChoiceFilter(choices=models.Payment.PAYMENT_STATUS)
-    created_at = django_filters.DateFromToRangeFilter()
+    created_at = django_filters.DateFilter('created_at__date')
 
     class Meta:
         model = models.Payment
