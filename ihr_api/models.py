@@ -121,11 +121,15 @@ class Product(models.Model):
 
 
 class Payment(models.Model):
-    METHOD_CARD = 0
-    METHOD_CRYPTO = 1
+    METHOD_OPEN_PAY = 0
+    METHOD_APPLE_PAY = 1
+    METHOD_MERCADOPAGO = 2
+    METHOD_CRYPTO = 3
 
     PAYMENT_METHODS = (
-        (METHOD_CARD, 'Card'),
+        (METHOD_OPEN_PAY, 'Open Pay'),
+        (METHOD_APPLE_PAY, 'Apple Pay'),
+        (METHOD_MERCADOPAGO, 'Mercadopago'),
         (METHOD_CRYPTO, 'Crypto'),
     )
 
@@ -139,7 +143,7 @@ class Payment(models.Model):
 
     reference = models.CharField(max_length=10, unique=True, null=False, blank=False)
     amount = models.FloatField(default=0, null=False)
-    payment_method = models.PositiveSmallIntegerField(default=METHOD_CARD, null=False, blank=False, choices=PAYMENT_METHODS)
+    payment_method = models.PositiveSmallIntegerField(default=METHOD_OPEN_PAY, null=False, blank=False, choices=PAYMENT_METHODS)
     status = models.PositiveSmallIntegerField(default=STATUS_PENDING, null=False, blank=False, choices=PAYMENT_STATUS)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -168,7 +172,10 @@ class Sale(models.Model):
     sub_total = models.FloatField(default=0, null=False)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     address = models.TextField(default="")
-    indications = models.TextField(default="")
+    first_name = models.CharField(max_length=150, null=False, blank=False)
+    last_name = models.CharField(max_length=150, null=False, blank=False)
+    phone_number = models.CharField(max_length=150, null=False, blank=False)
+    indications = models.TextField(default="", null=True, blank=True)
     status = models.PositiveSmallIntegerField(default=SALE_PENDING_PAYMENT, null=False, blank=False, choices=SALE_STATUS)
     payment = models.ForeignKey(Payment, on_delete=models.SET_NULL, null=True)
 

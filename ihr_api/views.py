@@ -1,8 +1,11 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import CreateAPIView
+from rest_framework.response import Response
+from rest_framework import status
 from ihr_api.serializers import admin_serializers, client_serializers, shared_serializers
 from ihr_api import models
 from ihr_api.filters import filters
+from ihr_api.services import sale_service
 from rest_framework import viewsets, permissions
 import django_filters
 
@@ -66,6 +69,17 @@ class SaleViewSet(viewsets.ModelViewSet):
     serializer_class = shared_serializers.SaleSerializer
     permission_classes = []
     authentication_classes = []
+
+    def create(self, request, *args, **kwargs):
+        cart, cart_total, shipping_info, payment_method, billing_info, source_id = sale_service.process_request(request)
+        if cart is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid cart data'})
+        if payment_method is None or payment_method > 4:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid payment method'})
+        if shipping_info is None:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid shipping data'})
+        sale_service.make_sale(cart, cart_total, shipping_info, payment_method, billing_info, source_id, None)
+        return Response(status=status.HTTP_200_OK)
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
