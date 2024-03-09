@@ -5,7 +5,7 @@ from rest_framework import status
 from ihr_api.serializers import admin_serializers, client_serializers, shared_serializers
 from ihr_api import models
 from ihr_api.filters import filters
-from ihr_api.services import sale_service
+from ihr_api.services import sale_service, openpay_service
 from rest_framework import viewsets, permissions
 import django_filters
 
@@ -73,15 +73,15 @@ class SaleViewSet(viewsets.ModelViewSet):
     authentication_classes = []
 
     def create(self, request, *args, **kwargs):
-        cart, cart_total, shipping_info, payment_method, billing_info, source_id = sale_service.process_request(request)
+        cart, cart_total, shipping_info, payment_method, billing_info = sale_service.process_request(request)
         if cart is None:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid cart data'})
         if payment_method is None or payment_method > 4:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid payment method'})
         if shipping_info is None:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Invalid shipping data'})
-        sale_service.make_sale(cart, cart_total, shipping_info, payment_method, billing_info, source_id, None)
-        return Response(status=status.HTTP_200_OK)
+        payment_reference, sale_reference = sale_service.make_sale(cart, cart_total, shipping_info, payment_method, billing_info, None)
+        return Response(status=status.HTTP_200_OK, data={'payment_reference': payment_reference, 'sale_reference': sale_reference})
 
 
 class PaymentViewSet(viewsets.ModelViewSet):
@@ -91,3 +91,32 @@ class PaymentViewSet(viewsets.ModelViewSet):
     filterset_class = filters.PaymentFilter
     permission_classes = []
     authentication_classes = []
+
+    def create(self, request, *args, **kwargs):
+        data = request.data.copy()
+        sale_reference = data.get('sale_reference', None)
+        payment_method = data.get('payment_method', None)
+
+        sale = models.Sale.objects.get(reference=sale_reference)
+        payment_success = False
+
+        if payment_method == models.Payment.METHOD_OPEN_PAY or payment_method == models.Payment.METHOD_MERCADOPAGO:
+            source_id = openpay_service.generate_token(data)
+            payment_success = openpay_service.create_payment(source_id, sale)
+        elif payment_method == models.Payment.METHOD_CRYPTO:
+            payment_success = False
+        elif payment_method == models.Payment.METHOD_APPLE_PAY:
+            payment_success = False
+
+        if payment_success:
+            payment = sale.payment
+            payment.status = models.Payment.STATUS_CONFIRMED
+            payment.save()
+
+            sale.status = models.Sale.SALE_CONFIRMED
+            sale.save()
+
+        if payment_success:
+            return Response(status=status.HTTP_200_OK, data={'message': 'Payment successful'})
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Payment failed'})

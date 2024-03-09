@@ -9,20 +9,18 @@ def process_request(request: Request):
     data = request.data.copy()
     cart = data.get('cart_info', None)
     cart_total = data.get('cart_total', None)
-    source_id = data.get('token_id', None)
     payment_method = data.get('method', None)
     billing_info = data.get('billing_info', None)
     shipping_info = data.get('shipping_info', None)
 
     print(cart)
-    print(source_id)
     print(payment_method)
     print(billing_info)
     print(shipping_info)
-    return cart, cart_total, shipping_info, payment_method, billing_info, source_id
+    return cart, cart_total, shipping_info, payment_method, billing_info
 
 
-def make_sale(cart, cart_total, shipping_info, payment_method: int, billing_info, source_id, user: models.User) -> bool:
+def make_sale(cart, cart_total, shipping_info, payment_method: int, billing_info, user: models.User) -> [str, str]:
     payment_reference = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
 
     payment = models.Payment.objects.create(
@@ -55,6 +53,10 @@ def make_sale(cart, cart_total, shipping_info, payment_method: int, billing_info
             sub_total=item['sub_total']
         )
 
+    return payment_reference, sale_reference
+
+
+"""
     payment_success = False
 
     if payment_method == models.Payment.METHOD_OPEN_PAY:
@@ -70,3 +72,4 @@ def make_sale(cart, cart_total, shipping_info, payment_method: int, billing_info
         sale.save()
         return True
     return False
+    """

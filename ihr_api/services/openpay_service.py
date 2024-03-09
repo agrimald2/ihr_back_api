@@ -1,6 +1,6 @@
 import os
-
 import openpay
+from ihr_api import models
 
 openpay.api_key = os.environ.get('OPENPAY_SECRET_KEY')
 openpay.verify_ssl_certs = False
@@ -9,26 +9,33 @@ openpay.production = False
 openpay.country = 'pe'
 
 
-def generate_token() -> str:
-    token = openpay.Token.create(
-        card_number="4111111111111111",
-        holder_name="Juan Perez Nuñez",
-        expiration_year="24",
-        expiration_month="12",
-        cvv2="110"
-    )
+def generate_token(data) -> str:
+    try:
+        card = data.get('card', None)
+        month_year = data.get('month_year', None)
+        month, year = month_year.split('/')
+        ccv = data.get('ccv', None)
+        token = openpay.Token.create(
+            card_number=card,
+            holder_name="Juan Perez Nuñez",
+            expiration_year=year,
+            expiration_month=month,
+            cvv2=ccv
+        )
 
-    return token.id
+        return token.id
+    except openpay.error.CardError as e:
+        return "-"
 
 
-def create_payment(amount: float, currency: str, source_id: str, sale_reference: str) -> bool:
+def create_payment(source_id: str, sale: models.Sale) -> bool:
     try:
         charge = openpay.Charge.create_as_merchant(
             method="card",
-            amount=amount,
-            currency=currency,
+            amount=sale.sub_total,
+            currency='PEN',
             description="Testing card charges from python",
-            order_id=sale_reference,
+            order_id=sale.reference,
             device_session_id="kjsadkjnnkjfvknjdfkjnvdkjnfvkj",
             source_id=source_id,
             customer={
