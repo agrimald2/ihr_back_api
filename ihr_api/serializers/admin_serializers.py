@@ -27,10 +27,19 @@ class AdminProductSerializer(serializers.ModelSerializer):
     store = AdminStoreSerializer(many=False, read_only=True)
     subcategory_id = serializers.IntegerField(write_only=True)
     store_id = serializers.IntegerField(write_only=True)
+    images = serializers.SerializerMethodField()
 
     class Meta:
         model = models.Product
         fields = '__all__'
+
+    def get_images(self, instance):
+        return [image.source.url for image in instance.images.all()]
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['images'] = self.get_images(instance)
+        return data
 
     def create(self, validated_data):
         subcategory_id = validated_data.get('subcategory_id')
