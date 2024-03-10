@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, Group
+from imagekit.models import ImageSpecField, ProcessedImageField
+from imagekit.processors import ResizeToFill
 
 
 class Currency(models.Model):
@@ -62,7 +64,7 @@ class Category(models.Model):
 class Subcategory(models.Model):
     name = models.CharField(max_length=150, null=False, blank=False)
     description = models.TextField(null=True, blank=True)
-    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -115,9 +117,37 @@ class Product(models.Model):
     size = models.ManyToManyField(Size, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    images = models.ManyToManyField(
+        "Image", blank=True, related_name="products"
+    )
 
     def __str__(self):
         return self.name
+
+
+class Image(models.Model):
+    name = models.CharField(max_length=300, null=True, blank=True)
+    size = models.IntegerField(default=0)
+    source = models.FileField(
+        upload_to='product_images/',
+        null=True,
+        blank=True,
+        max_length=300
+    )
+    source_thumbnail = ProcessedImageField(
+        upload_to='product_images/',
+        processors=[ResizeToFill(96, 96)],
+        format="JPEG",
+        options={"quality": 60},
+        null=True,
+        blank=True,
+    )
+    source_mini_thumbnail = ImageSpecField(
+        source="source",
+        processors=[ResizeToFill(82, 48)],
+        format="JPEG",
+        options={"quality": 60},
+    )
 
 
 class Payment(models.Model):
