@@ -1,5 +1,5 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
-from rest_framework.generics import CreateAPIView
+from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from ihr_api.serializers import admin_serializers, client_serializers, shared_serializers
@@ -27,6 +27,12 @@ class ProductViewSet(viewsets.ModelViewSet):
     filterset_class = filters.ProductFilter
     permission_classes = []
     authentication_classes = []
+
+
+class ProductRetrieveAPIView(RetrieveAPIView):
+    queryset = models.Product.objects.all()
+    serializer_class = admin_serializers.AdminProductSerializer
+    lookup_field = 'id'
 
 
 class CategoryViewSet(viewsets.ModelViewSet):
