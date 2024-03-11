@@ -2,10 +2,10 @@ import os
 import mercadopago
 from ihr_api import models
 
-sdk = mercadopago.SDK(str(os.environ.get('MERCADOPAGO_ACCESS_TOKEN')))
 
+def generate_token(data, billing_account: models.BillingAccount) -> str:
+    sdk = mercadopago.SDK(str(os.environ.get(str(billing_account.key_1))))
 
-def generate_token(data) -> str:
     card = data.get('number', None)
     month_year = data.get('month_year', None)
     month, year = month_year.split('/')
@@ -27,7 +27,9 @@ def generate_token(data) -> str:
     return token["response"]["id"]
 
 
-def create_payment(source_id: str, sale: models.Sale) -> bool:
+def create_payment(source_id: str, sale: models.Sale, billing_account: models.BillingAccount) -> bool:
+    sdk = mercadopago.SDK(str(os.environ.get(str(billing_account.key_1))))
+
     request_options = mercadopago.config.RequestOptions()
     request_options.custom_headers = {
         'x-idempotency-key': sale.payment.reference

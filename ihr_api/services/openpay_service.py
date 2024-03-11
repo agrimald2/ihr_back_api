@@ -2,14 +2,15 @@ import os
 import openpay
 from ihr_api import models
 
-openpay.api_key = os.environ.get('OPENPAY_SECRET_KEY')
 openpay.verify_ssl_certs = False
-openpay.merchant_id = os.environ.get('OPENPAY_MERCHANT_ID')
 openpay.production = False
 openpay.country = 'pe'
 
 
-def generate_token(data) -> str:
+def generate_token(data, billing_account: models.BillingAccount) -> str:
+    openpay.merchant_id = os.environ.get(str(billing_account.key_1))
+    openpay.api_key = os.environ.get(str(billing_account.key_2))
+
     try:
         card = data.get('number', None)
         month_year = data.get('month_year', None)
@@ -29,7 +30,10 @@ def generate_token(data) -> str:
         return "-"
 
 
-def create_payment(source_id: str, sale: models.Sale) -> bool:
+def create_payment(source_id: str, sale: models.Sale, billing_account: models.BillingAccount) -> bool:
+    openpay.merchant_id = os.environ.get(str(billing_account.key_1))
+    openpay.api_key = os.environ.get(str(billing_account.key_2))
+
     try:
         charge = openpay.Charge.create_as_merchant(
             method="card",

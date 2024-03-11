@@ -8,6 +8,7 @@ from ihr_api.filters import filters
 from ihr_api.services import sale_service, openpay_service, mercadopago_service
 from rest_framework import viewsets, permissions
 import django_filters
+import random
 
 
 class APITokenObtainPairView(TokenObtainPairView):
@@ -113,24 +114,43 @@ class PaymentViewSet(viewsets.ModelViewSet):
         payment_method = data.get('payment_method', None)
 
         sale = models.Sale.objects.get(reference=sale_reference)
+        payment = sale.payment
         payment_success = False
 
         if payment_method == models.Payment.METHOD_OPEN_PAY or payment_method == models.Payment.METHOD_MERCADOPAGO:
-            source_id = mercadopago_service.generate_token(data)
-            print(source_id)
-            payment_success = mercadopago_service.create_payment(source_id, sale)
+            if random.choice([True, False]):
+                payment.payment_method = models.Payment.METHOD_OPEN_PAY
+                billing_accounts = models.BillingAccount.objects.filter(
+                    payment_method=models.BillingAccount.METHOD_OPEN_PAY,
+                    active=True)
+                random_chosen_account = random.choice(billing_accounts)
+
+                source_id = openpay_service.generate_token(data, random_chosen_account)
+                payment_success = openpay_service.create_payment(source_id, sale, random_chosen_account)
+                print('openpay')
+            else:
+                payment.payment_method = models.Payment.METHOD_MERCADOPAGO
+                billing_accounts = models.BillingAccount.objects.filter(
+                    payment_method=models.BillingAccount.METHOD_MERCADOPAGO,
+                    active=True)
+                random_chosen_account = random.choice(billing_accounts)
+
+                source_id = mercadopago_service.generate_token(data, random_chosen_account)
+                payment_success = mercadopago_service.create_payment(source_id, sale, random_chosen_account)
+                print('mercadopago')
         elif payment_method == models.Payment.METHOD_CRYPTO:
+            payment.payment_method = models.Payment.METHOD_CRYPTO
             payment_success = False
         elif payment_method == models.Payment.METHOD_APPLE_PAY:
+            payment.payment_method = models.Payment.METHOD_APPLE_PAY
             payment_success = False
 
         if payment_success:
-            payment = sale.payment
             payment.status = models.Payment.STATUS_CONFIRMED
-            payment.save()
-
             sale.status = models.Sale.SALE_CONFIRMED
-            sale.save()
+
+        payment.save()
+        sale.save()
 
         if payment_success:
             return Response(status=status.HTTP_200_OK, data={'message': 'Payment successful'})

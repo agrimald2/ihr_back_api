@@ -170,7 +170,7 @@ class Payment(models.Model):
     currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, null=False, blank=False, default=1)
     billing_account = models.ForeignKey(BillingAccount, on_delete=models.SET_DEFAULT, null=False, blank=False, default=1)
     amount_dollars = models.FloatField(default=0, null=False)
-    payment_method = models.PositiveSmallIntegerField(default=METHOD_OPEN_PAY, null=False, blank=False, choices=PAYMENT_METHODS)
+    payment_method = models.PositiveSmallIntegerField(null=True, blank=True, choices=PAYMENT_METHODS)
     status = models.PositiveSmallIntegerField(default=STATUS_PENDING, null=False, blank=False, choices=PAYMENT_STATUS)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
