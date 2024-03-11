@@ -1,6 +1,7 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
+from django.http import HttpResponse
 from rest_framework import status
 from ihr_api.serializers import admin_serializers, client_serializers, shared_serializers
 from ihr_api import models
@@ -156,3 +157,11 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_200_OK, data={'message': 'Payment successful'})
         else:
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Payment failed'})
+
+
+def crypto_confirm_callback(request, sale_reference):
+    print(request)
+    print(request.data)
+    print(f"Received callback for sale reference: {sale_reference}")
+
+    return HttpResponse(status=200)
