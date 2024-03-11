@@ -120,6 +120,29 @@ class Product(models.Model):
         return self.name
 
 
+class BillingAccount(models.Model):
+    METHOD_OPEN_PAY = 0
+    METHOD_APPLE_PAY = 1
+    METHOD_MERCADOPAGO = 2
+    METHOD_CRYPTO = 3
+
+    PAYMENT_METHODS = (
+        (METHOD_OPEN_PAY, 'Open Pay'),
+        (METHOD_APPLE_PAY, 'Apple Pay'),
+        (METHOD_MERCADOPAGO, 'Mercadopago'),
+        (METHOD_CRYPTO, 'Crypto'),
+    )
+
+    name = models.CharField(max_length=150, null=False, blank=False)
+    payment_method = models.PositiveSmallIntegerField(default=METHOD_OPEN_PAY, null=False, blank=False, choices=PAYMENT_METHODS)
+    key_1 = models.CharField(max_length=150, null=True, blank=True)
+    key_2 = models.CharField(max_length=150, null=True, blank=True)
+    active = models.BooleanField(default=True, null=False, blank=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+
 class Payment(models.Model):
     METHOD_OPEN_PAY = 0
     METHOD_APPLE_PAY = 1
@@ -142,7 +165,11 @@ class Payment(models.Model):
     )
 
     reference = models.CharField(max_length=10, unique=True, null=False, blank=False)
+    description = models.TextField(null=True, blank=True)
     amount = models.FloatField(default=0, null=False)
+    currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, null=False, blank=False, default=1)
+    billing_account = models.ForeignKey(BillingAccount, on_delete=models.SET_DEFAULT, null=False, blank=False, default=1)
+    amount_dollars = models.FloatField(default=0, null=False)
     payment_method = models.PositiveSmallIntegerField(default=METHOD_OPEN_PAY, null=False, blank=False, choices=PAYMENT_METHODS)
     status = models.PositiveSmallIntegerField(default=STATUS_PENDING, null=False, blank=False, choices=PAYMENT_STATUS)
     created_at = models.DateTimeField(auto_now_add=True)

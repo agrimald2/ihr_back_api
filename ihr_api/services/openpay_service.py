@@ -11,10 +11,11 @@ openpay.country = 'pe'
 
 def generate_token(data) -> str:
     try:
-        card = data.get('card', None)
+        card = data.get('number', None)
         month_year = data.get('month_year', None)
         month, year = month_year.split('/')
-        ccv = data.get('ccv', None)
+        ccv = data.get('cvc', None)
+        print(card, month, year, ccv)
         token = openpay.Token.create(
             card_number=card,
             holder_name="Juan Perez Nuñez",
@@ -32,7 +33,7 @@ def create_payment(source_id: str, sale: models.Sale) -> bool:
     try:
         charge = openpay.Charge.create_as_merchant(
             method="card",
-            amount=sale.sub_total,
+            amount=sale.payment.amount,
             currency='PEN',
             description="Testing card charges from python",
             order_id=sale.reference,

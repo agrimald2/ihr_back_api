@@ -29,7 +29,17 @@ class PaymentFilter(django_filters.FilterSet):
     reference = django_filters.CharFilter(lookup_expr='icontains')
     status = django_filters.ChoiceFilter(choices=models.Payment.PAYMENT_STATUS)
     created_at = django_filters.DateFilter('created_at__date')
+    currency = django_filters.ModelChoiceFilter(queryset=models.Currency.objects.all())
+    billing_account = django_filters.ModelChoiceFilter(queryset=models.BillingAccount.objects.all())
 
     class Meta:
         model = models.Payment
-        fields = ['payment_method', 'reference', 'status', 'created_at']
+        fields = ['payment_method', 'reference', 'status', 'created_at', 'currency', 'billing_account']
+
+
+class BillingAccountFilter(django_filters.FilterSet):
+    name = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = models.BillingAccount
+        fields = ['name']

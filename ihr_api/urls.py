@@ -12,6 +12,7 @@ router.register(r'country', views.CountryViewSet)
 router.register(r'currency', views.CurrencyViewSet)
 router.register(r'sale', views.SaleViewSet)
 router.register(r'payment', views.PaymentViewSet)
+router.register(r'billing_account', views.BillingAccountViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),

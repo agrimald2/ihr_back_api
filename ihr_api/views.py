@@ -5,7 +5,7 @@ from rest_framework import status
 from ihr_api.serializers import admin_serializers, client_serializers, shared_serializers
 from ihr_api import models
 from ihr_api.filters import filters
-from ihr_api.services import sale_service, openpay_service
+from ihr_api.services import sale_service, openpay_service, mercadopago_service
 from rest_framework import viewsets, permissions
 import django_filters
 
@@ -84,6 +84,15 @@ class SaleViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_200_OK, data={'payment_reference': payment_reference, 'sale_reference': sale_reference})
 
 
+class BillingAccountViewSet(viewsets.ModelViewSet):
+    queryset = models.BillingAccount.objects.all()
+    serializer_class = shared_serializers.BillingAccountSerializer
+    permission_classes = []
+    authentication_classes = []
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = filters.BillingAccountFilter
+
+
 class PaymentViewSet(viewsets.ModelViewSet):
     queryset = models.Payment.objects.all()
     serializer_class = shared_serializers.PaymentSerializer
@@ -101,8 +110,9 @@ class PaymentViewSet(viewsets.ModelViewSet):
         payment_success = False
 
         if payment_method == models.Payment.METHOD_OPEN_PAY or payment_method == models.Payment.METHOD_MERCADOPAGO:
-            source_id = openpay_service.generate_token(data)
-            payment_success = openpay_service.create_payment(source_id, sale)
+            source_id = mercadopago_service.generate_token(data)
+            print(source_id)
+            payment_success = mercadopago_service.create_payment(source_id, sale)
         elif payment_method == models.Payment.METHOD_CRYPTO:
             payment_success = False
         elif payment_method == models.Payment.METHOD_APPLE_PAY:

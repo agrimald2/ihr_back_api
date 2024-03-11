@@ -81,10 +81,24 @@ class CurrencySerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
+class BillingAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = models.BillingAccount
+        fields = '__all__'
+
+
 class PaymentSerializer(serializers.ModelSerializer):
+    currency = CurrencySerializer(many=False, read_only=True)
+    billing_account = BillingAccountSerializer(many=False, read_only=True)
+    sale_reference = serializers.SerializerMethodField()
+
     class Meta:
         model = models.Payment
         fields = '__all__'
+
+    def get_sale_reference(self, obj):
+        sale = models.Sale.objects.filter(payment=obj).first()
+        return sale.reference
 
 
 class SizeSerializer(serializers.ModelSerializer):
