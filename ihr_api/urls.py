@@ -20,5 +20,5 @@ urlpatterns = [
     path('login/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', views.CreateUserView.as_view(), name='create_user'),
     path('product/<int:id>/', views.ProductRetrieveAPIView.as_view(), name='product-detail'),
-    path('crypto_confirmation/<str:sale_reference>', views.crypto_confirm_callback, name='crypto_confirm_callback'),
+    path('crypto_confirmation/<str:sale_reference>/', views.crypto_confirm_callback, name='crypto_confirm_callback'),
 ]

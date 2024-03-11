@@ -10,6 +10,9 @@ from ihr_api.services import sale_service, openpay_service, mercadopago_service
 from rest_framework import viewsets, permissions
 import django_filters
 import random
+from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 
 class APITokenObtainPairView(TokenObtainPairView):
@@ -159,9 +162,11 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Payment failed'})
 
 
+@csrf_exempt
+@require_POST
 def crypto_confirm_callback(request, sale_reference):
-    print(request)
-    print(request.data)
+    data = json.loads(request.body.decode('utf-8'))
+    print(data.get('xd', None))
     print(f"Received callback for sale reference: {sale_reference}")
 
     return HttpResponse(status=200)
