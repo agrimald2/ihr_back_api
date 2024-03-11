@@ -18,4 +18,5 @@ urlpatterns = [
     path('login/', views.APITokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('login/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('register/', views.CreateUserView.as_view(), name='create_user'),
+    path('product/<int:id>/', views.ProductRetrieveAPIView.as_view(), name='product-detail')
 ]
