@@ -43,3 +43,11 @@ class BillingAccountFilter(django_filters.FilterSet):
     class Meta:
         model = models.BillingAccount
         fields = ['name']
+
+
+class PaymentLinkFilter(django_filters.FilterSet):
+    reference = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = models.PaymentLink
+        fields = ['reference']

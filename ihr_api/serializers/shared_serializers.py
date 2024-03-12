@@ -2,6 +2,8 @@ from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from ihr_api import models
 from ihr_api.serializers import client_serializers
+import string
+import random
 
 
 class APITokenObtainPairSerializer(TokenObtainPairSerializer):
@@ -131,3 +133,24 @@ class SaleSerializer(serializers.ModelSerializer):
     def get_items(self, obj):
         items = models.SaleItem.objects.filter(sale=obj)
         return SaleItemSerializer(items, many=True).data
+
+
+class PaymentLinkSerializer(serializers.ModelSerializer):
+    currency = CurrencySerializer(many=False, read_only=True)
+
+    class Meta:
+        model = models.PaymentLink
+        fields = '__all__'
+
+    def create(self, validated_data):
+        reference = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        currency_id = validated_data.get('currency_id')
+        currency = models.Currency.objects.get(pk=currency_id)
+
+        link = models.PaymentLink.objects.create(
+            reference=reference,
+            currency=currency,
+            **validated_data
+        )
+
+        return link

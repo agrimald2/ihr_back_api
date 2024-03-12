@@ -1,7 +1,7 @@
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.generics import CreateAPIView, RetrieveAPIView
 from rest_framework.response import Response
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from rest_framework import status
 from ihr_api.serializers import admin_serializers, client_serializers, shared_serializers
 from ihr_api import models
@@ -162,6 +162,15 @@ class PaymentViewSet(viewsets.ModelViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST, data={'error': 'Payment failed'})
 
 
+class PaymentLinkViewSet(viewsets.ModelViewSet):
+    queryset = models.PaymentLink.objects.all()
+    serializer_class = shared_serializers.PaymentLinkSerializer
+    permission_classes = []
+    authentication_classes = []
+    filter_backends = [django_filters.rest_framework.DjangoFilterBackend]
+    filterset_class = filters.PaymentLinkFilter
+
+
 @csrf_exempt
 @require_POST
 def crypto_confirm_callback(request, sale_reference):
@@ -170,3 +179,17 @@ def crypto_confirm_callback(request, sale_reference):
     print(f"Received callback for sale reference: {sale_reference}")
 
     return HttpResponse(status=200)
+
+
+@csrf_exempt
+def payment_link_retrieve(request, sale_reference):
+    # find sale if none find payment link with that reference
+    sale = models.Sale.objects.filter(reference=sale_reference)
+    if sale:
+        return JsonResponse(status=status.HTTP_200_OK, data=shared_serializers.SaleSerializer(sale[0]).data)
+    else:
+        payment_link = models.PaymentLink.objects.filter(reference=sale_reference)
+        if payment_link:
+            return JsonResponse(status=status.HTTP_200_OK, data=shared_serializers.PaymentLinkSerializer(payment_link[0]).data)
+
+    return JsonResponse(data={'error': 'Invalid sale reference'})

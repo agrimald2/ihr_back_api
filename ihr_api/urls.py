@@ -13,6 +13,7 @@ router.register(r'currency', views.CurrencyViewSet)
 router.register(r'sale', views.SaleViewSet)
 router.register(r'payment', views.PaymentViewSet)
 router.register(r'billing_account', views.BillingAccountViewSet)
+router.register(r'payment_link', views.PaymentLinkViewSet)
 
 urlpatterns = [
     path('', include(router.urls)),
@@ -21,4 +22,5 @@ urlpatterns = [
     path('register/', views.CreateUserView.as_view(), name='create_user'),
     path('product/<int:id>/', views.ProductRetrieveAPIView.as_view(), name='product-detail'),
     path('crypto_confirmation/<str:sale_reference>/', views.crypto_confirm_callback, name='crypto_confirm_callback'),
+    path('payment_link/retrieve/<str:sale_reference>/', views.payment_link_retrieve, name='payment_link_retrieve'),
 ]
