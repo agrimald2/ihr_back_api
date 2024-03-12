@@ -27,8 +27,11 @@ def generate_token(data, billing_account: models.BillingAccount) -> str:
     return token["response"]["id"]
 
 
-def create_payment(source_id: str, sale: models.Sale, billing_account: models.BillingAccount) -> bool:
+def create_payment(source_id: str, sale: models.Sale, payment_link: models.PaymentLink, billing_account: models.BillingAccount) -> bool:
     sdk = mercadopago.SDK(str(os.environ.get(str(billing_account.key_1))))
+
+    amount = sale.payment.amount if sale else payment_link.amount
+    reference = sale.reference if sale else payment_link.reference
 
     request_options = mercadopago.config.RequestOptions()
     request_options.custom_headers = {
@@ -36,7 +39,7 @@ def create_payment(source_id: str, sale: models.Sale, billing_account: models.Bi
     }
 
     payment_data = {
-        "transaction_amount": sale.payment.amount,
+        "transaction_amount": amount,
         "token": source_id,
         "description": "ecommerce sale",
         "payment_method_id": 'visa',

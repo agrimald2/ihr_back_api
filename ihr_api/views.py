@@ -117,20 +117,27 @@ class PaymentViewSet(viewsets.ModelViewSet):
         sale_reference = data.get('sale_reference', None)
         payment_method = data.get('payment_method', None)
 
-        sale = models.Sale.objects.get(reference=sale_reference)
+        sale = models.Sale.objects.filter(reference=sale_reference)
+        sale = sale[0] if sale else None
+        payment_link = models.PaymentLink.objects.filter(reference=sale_reference)
+        payment_link = payment_link[0] if payment_link else None
+
         payment = sale.payment
         payment_success = False
 
         if payment_method == models.Payment.METHOD_OPEN_PAY or payment_method == models.Payment.METHOD_MERCADOPAGO:
-            if random.choice([True, False]):
+            use_open_pay = random.choice([True, False]) if sale else payment_link.billing_account.payment_method == models.BillingAccount.METHOD_OPEN_PAY
+            if use_open_pay:
                 payment.payment_method = models.Payment.METHOD_OPEN_PAY
                 billing_accounts = models.BillingAccount.objects.filter(
                     payment_method=models.BillingAccount.METHOD_OPEN_PAY,
                     active=True)
                 random_chosen_account = random.choice(billing_accounts)
+                if payment_link:
+                    random_chosen_account = payment_link.billing_account
 
                 source_id = openpay_service.generate_token(data, random_chosen_account)
-                payment_success = openpay_service.create_payment(source_id, sale, random_chosen_account)
+                payment_success = openpay_service.create_payment(source_id, sale, payment_link, random_chosen_account)
                 print('openpay')
             else:
                 payment.payment_method = models.Payment.METHOD_MERCADOPAGO
@@ -138,9 +145,11 @@ class PaymentViewSet(viewsets.ModelViewSet):
                     payment_method=models.BillingAccount.METHOD_MERCADOPAGO,
                     active=True)
                 random_chosen_account = random.choice(billing_accounts)
+                if payment_link:
+                    random_chosen_account = payment_link.billing_account
 
                 source_id = mercadopago_service.generate_token(data, random_chosen_account)
-                payment_success = mercadopago_service.create_payment(source_id, sale, random_chosen_account)
+                payment_success = mercadopago_service.create_payment(source_id, sale, payment_link, random_chosen_account)
                 print('mercadopago')
         elif payment_method == models.Payment.METHOD_CRYPTO:
             payment.payment_method = models.Payment.METHOD_CRYPTO

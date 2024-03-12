@@ -222,6 +222,7 @@ class PaymentLink(models.Model):
     description = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     payed = models.BooleanField(default=False, null=False, blank=False)
+    billing_account = models.ForeignKey(BillingAccount, on_delete=models.SET_DEFAULT, null=False, blank=False, default=1)
 
     def __str__(self):
         return self.reference

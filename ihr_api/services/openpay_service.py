@@ -30,17 +30,20 @@ def generate_token(data, billing_account: models.BillingAccount) -> str:
         return "-"
 
 
-def create_payment(source_id: str, sale: models.Sale, billing_account: models.BillingAccount) -> bool:
+def create_payment(source_id: str, sale: models.Sale, payment_link: models.PaymentLink, billing_account: models.BillingAccount) -> bool:
     openpay.merchant_id = os.environ.get(str(billing_account.key_1))
     openpay.api_key = os.environ.get(str(billing_account.key_2))
+
+    amount = sale.payment.amount if sale else payment_link.amount
+    reference = sale.reference if sale else payment_link.reference
 
     try:
         charge = openpay.Charge.create_as_merchant(
             method="card",
-            amount=sale.payment.amount,
+            amount=amount,
             currency='PEN',
             description="Testing card charges from python",
-            order_id=sale.reference,
+            order_id=reference,
             device_session_id="kjsadkjnnkjfvknjdfkjnvdkjnfvkj",
             source_id=source_id,
             customer={
