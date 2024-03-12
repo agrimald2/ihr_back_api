@@ -35,7 +35,7 @@ def create_payment(source_id: str, sale: models.Sale, payment_link: models.Payme
 
     request_options = mercadopago.config.RequestOptions()
     request_options.custom_headers = {
-        'x-idempotency-key': sale.payment.reference
+        'x-idempotency-key': reference
     }
 
     payment_data = {

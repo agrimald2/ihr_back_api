@@ -161,11 +161,16 @@ class PaymentViewSet(viewsets.ModelViewSet):
             payment_success = False
 
         if payment_success:
-            payment.status = models.Payment.STATUS_CONFIRMED
-            sale.status = models.Sale.SALE_CONFIRMED
+            if payment:
+                payment.status = models.Payment.STATUS_CONFIRMED
+                sale.status = models.Sale.SALE_CONFIRMED
+            else:
+                payment_link.payed = True
+                payment_link.save()
 
-        payment.save()
-        sale.save()
+        if sale:
+            payment.save()
+            sale.save()
 
         if payment_success:
             return Response(status=status.HTTP_200_OK, data={'message': 'Payment successful'})

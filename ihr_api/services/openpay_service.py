@@ -8,8 +8,8 @@ openpay.country = 'pe'
 
 
 def generate_token(data, billing_account: models.BillingAccount) -> str:
-    openpay.merchant_id = os.environ.get(str(billing_account.key_1))
-    openpay.api_key = os.environ.get(str(billing_account.key_2))
+    openpay.api_key = os.environ.get(str(billing_account.key_1))
+    openpay.merchant_id = os.environ.get(str(billing_account.key_2))
 
     try:
         card = data.get('number', None)
@@ -31,8 +31,8 @@ def generate_token(data, billing_account: models.BillingAccount) -> str:
 
 
 def create_payment(source_id: str, sale: models.Sale, payment_link: models.PaymentLink, billing_account: models.BillingAccount) -> bool:
-    openpay.merchant_id = os.environ.get(str(billing_account.key_1))
-    openpay.api_key = os.environ.get(str(billing_account.key_2))
+    openpay.api_key = os.environ.get(str(billing_account.key_1))
+    openpay.merchant_id = os.environ.get(str(billing_account.key_2))
 
     amount = sale.payment.amount if sale else payment_link.amount
     reference = sale.reference if sale else payment_link.reference
