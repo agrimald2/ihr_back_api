@@ -122,13 +122,14 @@ class PaymentViewSet(viewsets.ModelViewSet):
         payment_link = models.PaymentLink.objects.filter(reference=sale_reference)
         payment_link = payment_link[0] if payment_link else None
 
-        payment = sale.payment
+        payment = sale.payment if sale else None
         payment_success = False
 
         if payment_method == models.Payment.METHOD_OPEN_PAY or payment_method == models.Payment.METHOD_MERCADOPAGO:
             use_open_pay = random.choice([True, False]) if sale else payment_link.billing_account.payment_method == models.BillingAccount.METHOD_OPEN_PAY
             if use_open_pay:
-                payment.payment_method = models.Payment.METHOD_OPEN_PAY
+                if payment:
+                    payment.payment_method = models.Payment.METHOD_OPEN_PAY
                 billing_accounts = models.BillingAccount.objects.filter(
                     payment_method=models.BillingAccount.METHOD_OPEN_PAY,
                     active=True)
@@ -140,7 +141,8 @@ class PaymentViewSet(viewsets.ModelViewSet):
                 payment_success = openpay_service.create_payment(source_id, sale, payment_link, random_chosen_account)
                 print('openpay')
             else:
-                payment.payment_method = models.Payment.METHOD_MERCADOPAGO
+                if payment:
+                    payment.payment_method = models.Payment.METHOD_MERCADOPAGO
                 billing_accounts = models.BillingAccount.objects.filter(
                     payment_method=models.BillingAccount.METHOD_MERCADOPAGO,
                     active=True)
