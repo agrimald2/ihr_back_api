@@ -137,6 +137,7 @@ class SaleSerializer(serializers.ModelSerializer):
 
 class PaymentLinkSerializer(serializers.ModelSerializer):
     currency = CurrencySerializer(many=False, read_only=True)
+    currency_id = serializers.IntegerField(write_only=True)
 
     class Meta:
         model = models.PaymentLink
@@ -144,11 +145,11 @@ class PaymentLinkSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         reference = ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+        validated_data['reference'] = reference
         currency_id = validated_data.get('currency_id')
         currency = models.Currency.objects.get(pk=currency_id)
 
         link = models.PaymentLink.objects.create(
-            reference=reference,
             currency=currency,
             **validated_data
         )

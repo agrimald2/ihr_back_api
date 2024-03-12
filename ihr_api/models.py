@@ -220,6 +220,8 @@ class PaymentLink(models.Model):
     amount = models.FloatField(default=0, null=False)
     currency = models.ForeignKey(Currency, on_delete=models.SET_DEFAULT, null=False, blank=False, default=1)
     description = models.TextField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    payed = models.BooleanField(default=False, null=False, blank=False)
 
     def __str__(self):
         return self.reference

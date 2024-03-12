@@ -183,7 +183,7 @@ def crypto_confirm_callback(request, sale_reference):
 
 @csrf_exempt
 def payment_link_retrieve(request, sale_reference):
-    # find sale if none find payment link with that reference
+    print(sale_reference)
     sale = models.Sale.objects.filter(reference=sale_reference)
     if sale:
         return JsonResponse(status=status.HTTP_200_OK, data=shared_serializers.SaleSerializer(sale[0]).data)
